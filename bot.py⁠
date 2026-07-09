@@ -6,21 +6,20 @@ from openai import OpenAI
 
 # 1. Telegram Bot Token Setup
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-print(f"--- DEBUG LOG START ---")
-print(f"DEBUG: TELEGRAM_BOT_TOKEN status in system: {bool(BOT_TOKEN)}")
+print(f"--- HARDCODED DEPLOYMENT LOG ---")
+print(f"DEBUG: TELEGRAM_BOT_TOKEN received in script: {bool(BOT_TOKEN)}")
 
 if not BOT_TOKEN:
-    print("❌ CRITICAL ERROR: TELEGRAM_BOT_TOKEN secret khali hai! GitHub Secrets check karein.")
+    print("❌ CRITICAL ERROR: Environment variable me token nahi mila!")
     sys.exit(1)
 
 try:
     bot = telebot.TeleBot(BOT_TOKEN)
-    print("🤖 TeleBot instance created successfully.")
+    print("🤖 TeleBot connected successfully.")
 except Exception as e:
-    print(f"❌ CRITICAL ERROR: Telegram connection failed: {e}")
+    print(f"❌ CRITICAL ERROR: Telegram initialization failed: {e}")
     sys.exit(1)
 
-# Aapka perfect username bina '@' ke
 BOT_USERNAME = "FeaturesticAibot" 
 
 # 2. GitHub Tokens List
@@ -30,10 +29,10 @@ if os.environ.get("TOKEN1"):
 if os.environ.get("TOKEN2"):
     GITHUB_TOKENS.append(os.environ.get("TOKEN2"))
 
-print(f"DEBUG: Total GitHub AI Tokens loaded: {len(GITHUB_TOKENS)}")
+print(f"DEBUG: GitHub Tokens loaded count: {len(GITHUB_TOKENS)}")
 
-if not GITHUB_TOKENS:
-    print("⚠️ WARNING: TOKEN1 aur TOKEN2 dono me se koi nahi mila, backup dummy token active.")
+if not GITHUB_TOKENS or "ghp_" not in GITHUB_TOKENS[0]:
+    print("⚠️ WARNING: Real GitHub AI Token nahi mila, default fallback use hoga.")
     GITHUB_TOKENS = ["dummy_token_to_prevent_crash"]
 
 current_token_index = 0
@@ -48,7 +47,6 @@ def get_openai_client():
 def rotate_token():
     global current_token_index
     current_token_index = (current_token_index + 1) % len(GITHUB_TOKENS)
-    print(f"🔄 Token Limit Reached. Switched to Index: {current_token_index}")
 
 MODELS = ["meta-llama-3.1-70b-instruct", "gpt-4o-mini", "mistral-large-2407"]
 
@@ -58,10 +56,9 @@ You chat casually and friendly in Hinglish like a helpful peer.
 Help users write/debug memory patching code in C++ (offsets, hooks, libil2cpp), design Android ImGui Mod Menus, and handle JNI/NDK.
 """
 
-# 🚀 /start command handler (With Add to Group Button)
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    print(f"DEBUG: Received /start command from Chat ID: {message.chat.id}")
+    print(f"DEBUG: Processing /start from {message.chat.id}")
     if message.chat.type == "private":
         welcome_text = (
             "👋 **Hello Bhai! Welcome to Modding AI Assistant Bot.**\n\n"
@@ -75,7 +72,6 @@ def send_welcome(message):
         markup.add(add_button)
         bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown", reply_markup=markup)
 
-# Chat Handler (Group + Private logic)
 @bot.message_handler(func=lambda message: True)
 def handle_chat(message):
     text = message.text if message.text else ""
@@ -85,7 +81,7 @@ def handle_chat(message):
     is_command = text.startswith("/ai ")
     
     if is_private or is_tagged or is_command:
-        print(f"DEBUG: Processing message from {message.chat.id}: {text[:20]}...")
+        print(f"DEBUG: Message detected: {text[:15]}...")
         bot.send_chat_action(message.chat.id, 'typing')
         clean_text = text.replace(f"@{BOT_USERNAME}", "").replace("/ai ", "").strip()
         
@@ -108,7 +104,6 @@ def handle_chat(message):
                     )
                     ai_reply = response.choices[0].message.content
                     bot.reply_to(message, ai_reply)
-                    print(f"✅ Reply successfully sent to {message.chat.id}")
                     return 
                 except Exception as e:
                     print(f"⚠️ Model {model_name} Error: {e}")
@@ -117,8 +112,8 @@ def handle_chat(message):
         bot.reply_to(message, "⏳ Server thoda busy hai, please 1 minute baad try karein.")
 
 if __name__ == "__main__":
-    print("🤖 Starting infinity polling loop now...")
+    print("🤖 Loop validation passed. Bot infinity polling active!")
     try:
         bot.infinity_polling(timeout=20, long_polling_timeout=10)
     except Exception as e:
-        print(f"❌ CRITICAL: infinity_polling crashed: {e}")
+        print(f"❌ Crash Log: {e}")
