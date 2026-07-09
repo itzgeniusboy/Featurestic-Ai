@@ -32,7 +32,7 @@ jobs:
     - name: Run Telegram Bot
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TOKEN1: ${{ secrets.GITHUB_AI_TOKEN1 }}
-        TOKEN2: ${{ secrets.GITHUB_AI_TOKEN2 }}
+        TOKEN1: ${{ secrets.TOKEN1 }}
+        TOKEN2: ${{ secrets.TOKEN2 }}
       run: |
         timeout 21000 python bot.py || true
