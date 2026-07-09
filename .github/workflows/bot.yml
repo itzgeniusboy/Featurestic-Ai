@@ -5,7 +5,11 @@ on:
     branches: [ main ]
   schedule:
     - cron: '0 */5 * * *'
-  workflow_dispatch: 
+  workflow_dispatch:
+
+concurrency:
+  group: telegram-bot
+  cancel-in-progress: true
 
 jobs:
   run-bot:
@@ -25,10 +29,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyTelegramBotAPI==4.12.0 openai==1.12.0
 
-    - name: Run Telegram Bot With Direct Tokens
+    - name: Run Telegram Bot
       env:
-        TELEGRAM_BOT_TOKEN: "8646650236:AAGz-gjytZTuywcW6o1J6O6_fBRvF9majXQ"
-        TOKEN1: "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"
-        TOKEN2: "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"
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TOKEN1: ${{ secrets.GITHUB_AI_TOKEN1 }}
+        TOKEN2: ${{ secrets.GITHUB_AI_TOKEN2 }}
       run: |
         timeout 21000 python bot.py || true
