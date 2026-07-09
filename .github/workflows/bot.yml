@@ -4,9 +4,8 @@ on:
   push:
     branches: [ main ]
   schedule:
-    # Har 5 ghante 50 minute ka loop chalane ke liye cron setup
     - cron: '0 */5 * * *'
-  workflow_dispatch: # Manual start karne ka button trigger
+  workflow_dispatch: 
 
 jobs:
   run-bot:
@@ -26,11 +25,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyTelegramBotAPI==4.12.0 openai==1.12.0
 
-    - name: Run Telegram Bot With Safe Timeout
+    - name: Run Telegram Bot With Direct Tokens
       env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TOKEN1: ${{ secrets.TOKEN1 }}
-        TOKEN2: ${{ secrets.TOKEN2 }}
+        TELEGRAM_BOT_TOKEN: "8646650236:AAGz-gjytZTuywcW6o1J6O6_fBRvF9majXQ"
+        TOKEN1: "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"
+        TOKEN2: "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"
       run: |
-        # 5 hours 50 minutes = 21000 seconds ke baad automatic job safely cancel hogi
         timeout 21000 python bot.py || true
